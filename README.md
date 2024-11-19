@@ -1,5 +1,5 @@
 # AlphaCraft
-AlphaCraft is a project that aims to develop a Minecraft agent that can has GPT-o1-like tree search/ self-reflection capability on top of the existing VLM agent. The project is based on the MineDojo environment and the OASIS world model.
+AlphaCraft is a project that aims to develop a Minecraft agent that can has GPT-o1-like tree search/ self-reflection capability on top of the existing CAMEL VLM agent. The project is based on the MineDojo environment and the OASIS world model.
 
 
 ## TODO List
@@ -7,6 +7,7 @@ AlphaCraft is a project that aims to develop a Minecraft agent that can has GPT-
 Milestone1: Task -> VLM Agent -> MCTS + OASIS world model -> Best actions (v0.1)
 
 **Please add the dependencies packages as GIT SUBMODULES for better management/ future update.**
+If you are having some modifications on the dependency repository, you can maintain a fork of the original repository and add the forked repository as a submodule. 
 
 - [ ]  Milestone1:
     - [x]  Prepare a code base for VLM agent based on camel  @Wendong Fan @Roman Georgio
