@@ -1,0 +1,2 @@
+2024-11-29 22:28:23 ziyi-Virtual-Machine watchdog[9246] INFO Watchdog started between parent 9151 and child 9173
+2024-11-29 22:28:59 ziyi-Virtual-Machine watchdog[9246] INFO Parent is not running, hence we need terminate the child.
