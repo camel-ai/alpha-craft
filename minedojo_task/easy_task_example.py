@@ -1,4 +1,7 @@
 import minedojo
+import numpy as np
+from PIL import Image
+
 
 if __name__ == "__main__":
     env = minedojo.make(
@@ -21,5 +24,20 @@ if __name__ == "__main__":
         action[0] = 1 # move forward
         action[2] = 1 # jump
         obs, reward, done, info = env.step(action)
-    # print('obs:', obs)
+    print('obs:', obs['rgb'])
+    print('Keys of obs:', obs.keys())
+    
+    obs_img = np.array(obs['rgb'])
+    obs_img = np.transpose(obs_img, (1, 2, 0))
+
+    print("obs['rgb'].shape:", obs['rgb'].shape)
+    print("obs['rgb'].dtype:", obs['rgb'].dtype)
+
+    image = Image.fromarray(obs_img.astype('uint8'))
+
     env.close()
+
+    image.save('output_image.png')
+
+    # 显示图像
+    image.show()
