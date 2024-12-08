@@ -1,6 +1,9 @@
 import os
 import re
 import numpy as np
+import statistics
+from enum import Enum, auto
+
 from camel.agents import ChatAgent
 from camel.configs import ChatGPTConfig
 from camel.messages import BaseMessage
@@ -8,9 +11,14 @@ from camel.types import ModelType, ModelPlatformType
 from camel.types.enums import RoleType
 from camel.models import ModelFactory
 
+class SelfConsistencyMethod(Enum):
+    MEAN = auto()
+    MAJORITY_VOTE = auto()
 
 class ValueFunctionAgent:
-    def __init__(self, task_desc, input_desc, n_samples=20, temperature=1.0, top_p=1.0, use_self_consistency=False):
+    def __init__(self, task_desc, input_desc, n_samples=20, temperature=1.0, top_p=1.0,
+                 use_self_consistency=False,
+                 self_consistency_method = SelfConsistencyMethod.MEAN):
         """
         Args:
             task_desc (str): Description of the task the agent needs to evaluate.
@@ -28,9 +36,11 @@ class ValueFunctionAgent:
         self.temperature = temperature
         self.top_p = top_p
         self.use_self_consistency = use_self_consistency
+        self.self_consistency_method = self_consistency_method
 
         self.model = self._initialize_model()
         self._agent = self._initialize_agent()
+
 
     def _initialize_model(self):
         """
@@ -128,10 +138,18 @@ class ValueFunctionAgent:
                 response = self._agent.step(user_msg)
                 score = self._parse_response(response.msgs[0].content)
                 all_scores.append(score)
-
             # Compute the final score as the mean of all sampled scores
-            return np.mean(all_scores)
+            if self.self_consistency_method == SelfConsistencyMethod.MEAN:
+                return np.mean(all_scores)
+            elif self.self_consistency_method == SelfConsistencyMethod.MAJORITY_VOTE:
+                return statistics.mode(all_scores)
         else:
             # Single-shot evaluation
             response = self._agent.step(user_msg)
             return self._parse_response(response.msgs[0].content)
+
+
+# Usage
+# agent = ValueFunctionAgent(task_desc, input_desc,
+#                            use_self_consistency=True,
+#                            self_consistency_method=SelfConsistencyMethod.MAJORITY_VOTE)
