@@ -8,13 +8,15 @@ class MCTS:
     Monte Carlo tree searcher. First rollout the tree then choose a move.
     """
 
-    def __init__(self, exploration_weight=1, max_depth=None, max_expansion=None):
+    def __init__(self, world_model, vf_agent, exploration_weight=1, max_depth=None, max_expansion=None):
         self.Q = defaultdict(int)  # total reward of each node
         self.N = defaultdict(int)  # total visit count for each node
         self.children = dict()  # children of each node
         self.exploration_weight = exploration_weight
         self.max_depth = max_depth  # Maximum depth for rollouts
         self.max_expansion = max_expansion  # Maximum number of children to expand
+        self.world_model = world_model
+        self.vf_agent = vf_agent
 
     def choose(self, node):
         """
@@ -56,6 +58,7 @@ class MCTS:
             if node not in self.children or not self.children[node]:
                 # Node is either unexplored or terminal
                 return path
+            # children of the node - children in tree, to identify unexplored ones
             unexplored = self.children[node] - self.children.keys()
             if unexplored:
                 n = unexplored.pop()
@@ -81,13 +84,17 @@ class MCTS:
         Returns the reward for a random simulation (to completion) of `node`.
         Simulations are terminated early if `max_depth` is reached.
         """
-        invert_reward = True
         while True:
             if node.is_terminal() or (self.max_depth is not None and depth >= self.max_depth):
-                reward = node.reward()
-                return 1 - reward if invert_reward else reward
-            node = node.find_random_child()
-            invert_reward = not invert_reward
+                reward = self.vf_agent.eval(node.state['observation'], node.state['action'])
+                return reward
+            new_node = node.find_random_child(self.world_model)
+            """
+            To simulate, you take the observation of the current node and the action in the new node
+            """
+            new_obs = self.world_model.step(node.state['observation'], new_node.state['action'])
+            new_node.update_state({'observation': new_obs, 'action': new_node.state['action']})
+            new_node.is_terminal = self.is_terminal()
             depth += 1
 
     def _backpropagate(self, path, reward):
