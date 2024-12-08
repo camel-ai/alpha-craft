@@ -16,10 +16,10 @@ if __name__ == "__main__":
     # print('env.action_space:', env.action_space)
     env.reset()
 
-    for _ in range(100):
+    for _ in range(5):
         action = env.action_space.no_op() # empty action
         action[0] = 1 # move forward
         action[2] = 1 # jump
         obs, reward, done, info = env.step(action)
-    # print('obs:', obs)
+    print('obs:', obs.keys(), "\naction: ", action, "\nreward", reward)
     env.close()
