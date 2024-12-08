@@ -22,8 +22,8 @@ class MCTS:
         """
         Choose the best successor of node. (Choose a move in the game)
         """
-        if node.is_terminal():
-            raise RuntimeError(f"choose called on terminal node {node}")
+        # if node.is_terminal():
+        #     raise RuntimeError(f"choose called on terminal node {node}")
 
         if node not in self.children:
             return node.find_random_child()
@@ -94,7 +94,7 @@ class MCTS:
             """
             new_obs = self.world_model.step(node.state['observation'], new_node.state['action'])
             new_node.update_state({'observation': new_obs, 'action': new_node.state['action']})
-            new_node.is_terminal = self.is_terminal()
+            # new_node.is_terminal = self.is_terminal()
             depth += 1
 
     def _backpropagate(self, path, reward):

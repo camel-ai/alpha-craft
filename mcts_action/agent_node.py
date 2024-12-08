@@ -11,7 +11,7 @@ class Node:
         self.visits = 0
         self.value = 0
         self.depth = 0 if parent is None else parent.depth + 1
-        self.is_terminal = False
+        # self.is_terminal = False
         self.reward = 0
         self.exhausted = False # If all children are terminal
         self.em = 0  # Exact match, evaluation metric
@@ -26,8 +26,8 @@ class Node:
         simulator: a simulator, assuming there is a terminal flag
         filters:  allows removing certain actions by indices per node. Not used at the moment
         """
-        if simulator.is_terminal():
-            return None
+        # if simulator.is_terminal():
+        #     return None
         return choice(self.children)
         
     # To be done post simulation
@@ -50,9 +50,9 @@ class Node:
         depth_term = self.depth
         return exploitation_term + C1 * exploration_term + C2 * depth_term
 
-    @property
-    def is_terminal(self):
-        return self.is_terminal
+    # @property
+    # def is_terminal(self):
+    #     return self.is_terminal
 
     def __str__(self):
         return f"Node(depth={self.depth}, value={self.value:.2f}, visits={self.visits}, action={self.state['action']}" #, observation={self.state['observation']})"
@@ -66,7 +66,7 @@ class Node:
             'visits': self.visits,
             'value': self.value,
             'depth': self.depth,
-            'is_terminal': self.is_terminal,
+            # 'is_terminal': self.is_terminal,
             'reward': self.reward,
             'em': self.em,
         }
