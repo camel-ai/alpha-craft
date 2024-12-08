@@ -92,7 +92,8 @@ class MCTS:
             """
             To simulate, you take the observation of the current node and the action in the new node
             """
-            new_obs = self.world_model.step(node.state['observation'], new_node.state['action'])
+            # NOTE: this might need fixing
+            new_obs = self.world_model.step_single_action(node.state['observation'], new_node.state['action'])
             new_node.update_state({'observation': new_obs, 'action': new_node.state['action']})
             # new_node.is_terminal = self.is_terminal()
             depth += 1

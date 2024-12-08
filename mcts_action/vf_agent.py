@@ -28,6 +28,7 @@ class ValueFunctionAgent():
             model=model
         )
         self.task_desc = task_desc
+        # TODO
         self.input_desc = input_desc
 
     def _init_system_prompt(self):
