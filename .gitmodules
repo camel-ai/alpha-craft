@@ -1,3 +1,6 @@
 [submodule "open-oasis"]
 	path = open-oasis
 	url = https://github.com/SgtVincent/open-oasis.git
+[submodule "MineDojo"]
+	path = MineDojo
+	url = https://github.com/SgtVincent/MineDojo
