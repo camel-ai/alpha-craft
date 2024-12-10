@@ -51,7 +51,9 @@ def forward_backward_action(action: int) -> int:
         ValueError: If action is not in [0, 1, 2].
     """
     if action not in [0, 1, 2]:
-        raise ValueError("ForwardBackwardAction must be 0 (noop), 1 (forward), or 2 (back).")
+        raise ValueError(
+            "ForwardBackwardAction must be 0 (noop), 1 (forward), or 2 (back)."
+        )
     return action
 
 
@@ -75,7 +77,9 @@ def move_left_right_action(action: int) -> int:
         ValueError: If action is not in [0, 1, 2].
     """
     if action not in [0, 1, 2]:
-        raise ValueError("MoveLeftRightAction must be 0 (noop), 1 (move left), or 2 (move right).")
+        raise ValueError(
+            "MoveLeftRightAction must be 0 (noop), 1 (move left), or 2 (move right)."
+        )
     return action
 
 
@@ -100,7 +104,9 @@ def jump_sneak_sprint_action(action: int) -> int:
         ValueError: If action is not in [0, 1, 2, 3].
     """
     if action not in [0, 1, 2, 3]:
-        raise ValueError("JumpSneakSprintAction must be 0 (noop), 1 (jump), 2 (sneak), or 3 (sprint).")
+        raise ValueError(
+            "JumpSneakSprintAction must be 0 (noop), 1 (jump), 2 (sneak), or 3 (sprint)."
+        )
     return action
 
 
@@ -183,7 +189,8 @@ def functional_action(action: int) -> int:
 
 def craft_argument_action(item_id: int) -> int:
     """
-    Argument for Craft Action
+    Argument for Craft Action.
+    Only effective for when the functional_action is 4 - craft.
 
     Description:
         Specifies the item to be crafted.
@@ -205,27 +212,43 @@ def craft_argument_action(item_id: int) -> int:
     return item_id
 
 
+# The item selection range in MineDojo is [0, 40], but we limit to hotbar slots [1, 9] to align with OASIS
+# EQUIP_SLOTS = {
+#     "mainhand": 0,
+#     "offhand": 40,
+#     "head": 39,
+#     "chest": 38,
+#     "legs": 37,
+#     "feet": 36,
+# }
+# MIN_SLOT_IDX = 0
+# MAX_SLOT_IDX = 40
 def equip_place_destroy_argument_action(inventory_slot: int) -> int:
     """
-    Argument for Equip, Place, and Destroy Actions
+    Item selection as an argument for Equip, Place, and Destroy Actions.
+    Only effective for when the functional_action is one of the following:
+        5 - equip
+        6 - place
+        7 - destroy
 
     Description:
         Specifies the inventory slot index.
 
     Input Arguments:
         inventory_slot (int):
-            Range: 0 to 35 representing different inventory slots.
+            Range: 1 to 9 representing different inventory slots.
 
     Returns:
         int: Validated inventory_slot.
 
     Raises:
-        ValueError: If inventory_slot is not in [0, 35].
+        ValueError: If inventory_slot is not in [1, 9].
     """
     if not isinstance(inventory_slot, int):
         raise TypeError("EquipPlaceDestroyArgumentAction requires an integer input.")
-    if not 0 <= inventory_slot <= 35:
-        raise ValueError("EquipPlaceDestroyArgumentAction must be in the range [0, 35].")
+    if not 0 <= inventory_slot <= 9:
+        # Keep 0 for noop
+        raise ValueError("EquipPlaceDestroyArgumentAction must be in the range [1, 9].")
     return inventory_slot
 
 
@@ -249,37 +272,51 @@ class ActionInterface:
         # Parse and validate action inputs from the JSON-formatted dictionary
         self.actions = actions
         if "forward_backward_action" in actions:
-            self.forward_backward = forward_backward_action(int(actions["forward_backward_action"]))
+            self.forward_backward = forward_backward_action(
+                int(actions["forward_backward_action"])
+            )
         else:
             self.forward_backward = forward_backward_action(0)
 
         if "move_left_right_action" in actions:
-            self.move_left_right = move_left_right_action(int(actions["move_left_right_action"]))
+            self.move_left_right = move_left_right_action(
+                int(actions["move_left_right_action"])
+            )
         else:
             self.move_left_right = move_left_right_action(0)
 
         if "jump_sneak_sprint_action" in actions:
-            self.jump_sneak_sprint = jump_sneak_sprint_action(int(actions["jump_sneak_sprint_action"]))
+            self.jump_sneak_sprint = jump_sneak_sprint_action(
+                int(actions["jump_sneak_sprint_action"])
+            )
         else:
             self.jump_sneak_sprint = jump_sneak_sprint_action(0)
 
         if "camera_delta_pitch_action" in actions:
-            self.camera_pitch = camera_delta_pitch_action(int(actions["camera_delta_pitch_action"]))
+            self.camera_pitch = camera_delta_pitch_action(
+                int(actions["camera_delta_pitch_action"])
+            )
         else:
             self.camera_pitch = camera_delta_pitch_action(12)
 
         if "camera_delta_yaw_action" in actions:
-            self.camera_yaw = camera_delta_yaw_action(int(actions["camera_delta_yaw_action"]))
+            self.camera_yaw = camera_delta_yaw_action(
+                int(actions["camera_delta_yaw_action"])
+            )
         else:
             self.camera_yaw = camera_delta_yaw_action(12)
 
         if "functional_action" in actions:
-            self.functional_action = functional_action(int(actions["functional_action"]))
+            self.functional_action = functional_action(
+                int(actions["functional_action"])
+            )
         else:
             self.functional_action = functional_action(0)
 
         if "craft_argument_action" in actions:
-            self.craft_argument = craft_argument_action(int(actions["craft_argument_action"]))
+            self.craft_argument = craft_argument_action(
+                int(actions["craft_argument_action"])
+            )
         else:
             self.craft_argument = craft_argument_action(0)
 
@@ -328,15 +365,15 @@ class ActionInterface:
             "destroy": 1 if self.functional_action == 7 else 0,
             "inventory": 0,
             "ESC": self.actions.get("ESC", 0),
-            "hotbar.1": self.actions.get("hotbar.1", 0),
-            "hotbar.2": self.actions.get("hotbar.2", 0),
-            "hotbar.3": self.actions.get("hotbar.3", 0),
-            "hotbar.4": self.actions.get("hotbar.4", 0),
-            "hotbar.5": self.actions.get("hotbar.5", 0),
-            "hotbar.6": self.actions.get("hotbar.6", 0),
-            "hotbar.7": self.actions.get("hotbar.7", 0),
-            "hotbar.8": self.actions.get("hotbar.8", 0),
-            "hotbar.9": self.actions.get("hotbar.9", 0),
+            "hotbar.1": 1 if self.equip_place_destroy_argument == 1 else 0,
+            "hotbar.2": 1 if self.equip_place_destroy_argument == 2 else 0,
+            "hotbar.3": 1 if self.equip_place_destroy_argument == 3 else 0,
+            "hotbar.4": 1 if self.equip_place_destroy_argument == 4 else 0,
+            "hotbar.5": 1 if self.equip_place_destroy_argument == 5 else 0,
+            "hotbar.6": 1 if self.equip_place_destroy_argument == 6 else 0,
+            "hotbar.7": 1 if self.equip_place_destroy_argument == 7 else 0,
+            "hotbar.8": 1 if self.equip_place_destroy_argument == 8 else 0,
+            "hotbar.9": 1 if self.equip_place_destroy_argument == 9 else 0,
         }
         return action_dict
 
@@ -418,7 +455,9 @@ def compress_mouse(camera_val: int) -> int:
     dx_normalized = degrees / 180.0
 
     # Non-linear encoding
-    v_encode = np.sign(dx_normalized) * (np.log(1.0 + mu * np.abs(dx_normalized)) / np.log(1.0 + mu))
+    v_encode = np.sign(dx_normalized) * (
+        np.log(1.0 + mu * np.abs(dx_normalized)) / np.log(1.0 + mu)
+    )
     v_encode *= max_val
 
     # Discretize to bin_size
