@@ -84,6 +84,7 @@ class MCTS:
         Returns the reward for a random simulation (to completion) of `node`.
         Simulations are terminated early if `max_depth` is reached.
         """
+        history = {'observations': [node.state['observation']], 'actions': [node.state['action']]}
         while True:
             if node.is_terminal() or (self.max_depth is not None and depth >= self.max_depth):
                 reward = self.vf_agent.eval(node.state['observation'], node.state['action'])
@@ -105,7 +106,7 @@ class MCTS:
         for node in reversed(path):
             self.N[node] += 1
             self.Q[node] += reward
-            reward = 1 - reward  # 1 for me is 0 for my enemy, and vice versa
+            # 1 for me is 0 for my enemy, and vice versa
 
     def _uct_select(self, node):
         """

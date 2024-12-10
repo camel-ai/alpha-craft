@@ -8,28 +8,50 @@ from camel.types import ModelType, ModelPlatformType
 from camel.types.enums import RoleType
 from camel.models import ModelFactory
 
-class ValueFunctionAgent():
-    def __init__(self, task_desc, input_desc):
+class VLMChoose:
+    @staticmethod
+    def choose(model_platform=ModelPlatformType.OLLAMA, model_type='llava', model_config_dict=None, url=None):
+        if model_platform == ModelPlatformType.OLLAMA:
+            return ModelFactory.create(
+                model_platform=ModelPlatformType.OLLAMA,
+                model_type=model_type,                
+                url='http://localhost:11434/v1',
+            )
+        if model_platform == ModelPlatformType.OPENAI:
+            return ModelFactory.create(
+                model_platform=ModelPlatformType.OPENAI,
+                model_type=model_type,
+                model_config_dict=model_config_dict,
+            )
+        return None
+    
 
-        assert "OPENAI_API_KEY" in os.environ and os.environ["OPENAI_API_KEY"], "Error: OPENAI_API_KEY is not set in the environment variables."
+class ValueFunctionAgent():
+    def __init__(self, task_desc, input_desc=None):
+
+        # assert "OPENAI_API_KEY" in os.environ and os.environ["OPENAI_API_KEY"], "Error: OPENAI_API_KEY is not set in the environment variables."
+        self.task_desc = task_desc
+        self.input_desc = input_desc
 
         sys_msg = self._init_system_prompt()
 
         # Set model
-        model=ModelFactory.create(
-            model_platform=ModelPlatformType.OPENAI,
-            model_type=ModelType.GPT_4O,
-            model_config_dict=ChatGPTConfig(temperature=0.6).as_dict(),
-        )
-
+        # model=ModelFactory.create(
+        #     model_platform=ModelPlatformType.OPENAI,
+        #     model_type=ModelType.GPT_4O,
+        #     model_config_dict=ChatGPTConfig(temperature=0.6).as_dict(),
+        # )
+        # model = VLMChoose.choose(model_platform=ModelPlatformType.OPENAI, model_type=ModelType.GPT_4O, 
+        #                          model_config_dict=ChatGPTConfig(temperature=0.6).as_dict()
+        #                          )
+        model = VLMChoose.choose(model_platform=ModelPlatformType.OLLAMA, model_type='llava', 
+                                 url='http://localhost:11434/v1',
+                                 )
         # Set agent
         self._agent = ChatAgent(
             sys_msg,
             model=model
         )
-        self.task_desc = task_desc
-        # TODO
-        self.input_desc = input_desc
 
     def _init_system_prompt(self):
 
@@ -54,7 +76,7 @@ class ValueFunctionAgent():
             content=prompt,
         )
 
-        return sys_msg.to_openai_system_message()
+        return sys_msg
 
     def _gen_user_eval_prompt(self, act_hist):
         prompt = f"""
@@ -64,8 +86,11 @@ class ValueFunctionAgent():
         return prompt
 
     def eval(self, obs_hist, act_hist):
+        print(f"obs_hist: {obs_hist}")
+        print(f"act_hist: {act_hist}")
+        print(self._gen_user_eval_prompt(act_hist))
         msg = BaseMessage.make_user_message(
-            role_name= "User", content = self._gen_user_eval_prompt(act_hist), image_list[img]
+            role_name= "User", content = self._gen_user_eval_prompt(act_hist), image_list=obs_hist
         )
 
         response = self._agent.step(msg)
@@ -78,7 +103,7 @@ class ValueFunctionAgent():
                 score = 1.0
             else:
                 # Check if it's on the path to success
-                on_path = re.search(r'On the right track to success: "?(.+)"?', r.message.content).group(1)
+                on_path = re.search(r'On the right track to success: "?(.+)"?', response_content).group(1)
                 if 'yes' in on_path.lower():
                     score = 0.5
                 else:
