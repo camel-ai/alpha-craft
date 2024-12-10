@@ -100,14 +100,16 @@ class ValueFunctionAgent():
         try:
             pred = re.search(r'Status: "?(.+)"?', response_content).group(1)
             if 'success' in pred.lower():
-                score = 1.0
+                score = 0.5
             else:
-                # Check if it's on the path to success
-                on_path = re.search(r'On the right track to success: "?(.+)"?', response_content).group(1)
-                if 'yes' in on_path.lower():
-                    score = 0.5
-                else:
-                    score = 0.0
+                score = 0.0
+            # else:
+            #     # Check if it's on the path to success
+            #     on_path = re.search(r'On the right track to success: "?(.+)"?', response_content).group(1)
+            #     if 'yes' in on_path.lower():
+            #         score = 0.5
+            #     else:
+            #         score = 0.0
         except Exception as e:
             print(f"Error parsing response: {e}")
             score = 0.0
