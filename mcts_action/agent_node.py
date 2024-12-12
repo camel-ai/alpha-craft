@@ -23,8 +23,8 @@ class Node:
        new_children = []
        for i in range(action_value_max):
             for child in children:
-                child_action = {child.state['action']}
-                child_action[action_key] = str(i)
+                child_action = {**child.state['action']} ## copy dict to generate new actions
+                child_action[action_key] = str(i) ## Format for ActionInterface input dict values
                 new_children.append(Node(state={'observation': '', 'action': child_action}))
        return new_children
         
