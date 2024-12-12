@@ -45,7 +45,7 @@ class Node:
 
         
 
-    def find_random_child(self, simulator, filters = []):
+    def find_random_child(self):
         """
         simulator: a simulator, assuming there is a terminal flag
         filters:  allows removing certain actions by indices per node. Not used at the moment
