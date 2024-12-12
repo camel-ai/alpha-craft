@@ -1,6 +1,6 @@
 import numpy as np
 from random import choice
-from agent import actions
+import actions
 # import copy
 
 class Node:
@@ -52,6 +52,7 @@ class Node:
         """
         # if simulator.is_terminal():
         #     return None
+        print("len(self.children) ", len(self.children))
         return choice(self.children)
         
     # To be done post simulation
