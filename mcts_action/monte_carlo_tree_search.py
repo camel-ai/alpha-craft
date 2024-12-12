@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 import math
-
+from agent import actions
 
 class MCTS:
     """
@@ -84,12 +84,12 @@ class MCTS:
         Returns the reward for a random simulation (to completion) of `node`.
         Simulations are terminated early if `max_depth` is reached.
         """
-        history = {'observations': [node.state['observation']], 'actions': [node.state['action']]}
+        history = {'obs_hist': [node.state['observation']], 'act_hist': [node.state['action'].to_oasis_format()]}
         while True:
             if node.is_terminal() or (self.max_depth is not None and depth >= self.max_depth):
-                reward = self.vf_agent.eval(node.state['observation'], node.state['action'])
+                reward = self.vf_agent.eval(**history)
                 return reward
-            new_node = node.find_random_child(self.world_model)
+            new_node = node.find_random_child()
             """
             To simulate, you take the observation of the current node and the action in the new node
             """

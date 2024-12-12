@@ -1,8 +1,10 @@
 import numpy as np
 from random import choice
+from agent import actions
+# import copy
 
 class Node:
-    def __init__(self, state, question, num_actions, env_state=None, parent=None):
+    def __init__(self, state, num_actions, env_state=None, parent=None, question=None):
         self.state = {'action': '', 'observation': ''} if state is None else state
         self.parent = parent
         self.question = question
@@ -17,9 +19,49 @@ class Node:
         self.em = 0  # Exact match, evaluation metric
         self.env_state = env_state
 
+    def generate_children_action(self, children, action_key, action_value_max):
+       new_children = []
+       for i in range(action_value_max):
+            for child in children:
+                child_action = {**child}
+                child_action[action_key] = str(i)
+                new_children.append(Node({'observation': '', 'action': child_action}, self.question, self.num_actions))
+       return new_children
+        
     def find_children(self):
-        for a_i in range(self.num_actions):
-            self.children(Node({'observation': '', 'action': a_i}, self.question, self.num_actions))
+        action_dict = {
+            "forward_backward_action": "0",
+            "move_left_right_action": "0",
+            "jump_sneak_sprint_action": "0",
+        }
+        # action_space = actions.ActionSpace(action_dict)
+        children = [action_dict]
+        children = children * 3
+        children = [ {**children_action} for children_action in children]
+
+        children = self.generate_children_action(children, "forward_backward_action", 3)
+        # for i in range(3):
+        #     child_action = {**action_dict}
+        #     child_action["forward_backward_action"] = str(i)
+        #     children.append(Node({'observation': '', 'action': child_action}, self.question, self.num_actions))
+        # self.generate_children_action(children, "move_left_right_action", 3)
+        children = self.generate_children_action(children, "move_left_right_action", 3)
+        # for i in range(3):
+        #     for child in children:
+        #         child_action = {**child}
+        #         child_action["move_left_right_action"] = str(i)
+        #         new_children.append(Node({'observation': '', 'action': child_action}, self.question, self.num_actions))
+        # children = new_children
+        children = self.generate_children_action(children, "jump_sneak_sprint_action", 4)
+        # for i in range(4):
+        #     for child in children:
+        #         child_action = {**child}
+        #         child_action["jump_sneak_sprint_action"] = str(i)
+        #         new_children.append(Node({'observation': '', 'action': child_action}, self.question, self.num_actions))
+            
+        return children
+
+        
 
     def find_random_child(self, simulator, filters = []):
         """
