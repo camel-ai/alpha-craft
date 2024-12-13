@@ -2,13 +2,14 @@ from abc import ABC, abstractmethod
 from collections import defaultdict
 import math
 import actions
+import torch
 
 class MCTS:
     """
     Monte Carlo tree searcher. First rollout the tree then choose a move.
     """
 
-    def __init__(self, world_model, vf_agent, exploration_weight=1, max_depth=None, max_expansion=None):
+    def __init__(self, world_model, vf_agent, exploration_weight=1, max_depth=3, max_expansion=None):
         self.Q = defaultdict(int)  # total reward of each node
         self.N = defaultdict(int)  # total visit count for each node
         self.children = dict()  # children of each node
@@ -94,7 +95,9 @@ class MCTS:
             To simulate, you take the observation of the current node and the action in the new node
             """
             # NOTE: this might need fixing
-            new_obs = self.world_model.step_single_action(node.state['observation'], new_node.state['action'])
+            print("node.state['observation']: ", node.state['observation'], type(node.state['observation']))
+            new_obs_img = self.world_model.step_single_action(node.state['observation'], actions.ActionInterface(new_node.state['action']).to_oasis_format())
+            new_obs = torch.tensor(new_obs_img).float().permute(2, 0, 1).unsqueeze(0)
             new_node.update_state({'observation': new_obs, 'action': new_node.state['action']})
             # new_node.is_terminal = self.is_terminal()
             history['obs_hist'].append(new_obs)

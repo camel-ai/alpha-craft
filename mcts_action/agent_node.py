@@ -9,7 +9,7 @@ class Node:
         self.parent = parent
         self.question = question
         self.num_actions = num_actions
-        self.children = []
+        # self.children = [] 
         self.visits = 0
         self.value = 0
         self.depth = 0 if parent is None else parent.depth + 1
@@ -40,7 +40,7 @@ class Node:
         children = self.generate_children_action(children, "forward_backward_action", 3)
         children = self.generate_children_action(children, "move_left_right_action", 3)
         children = self.generate_children_action(children, "jump_sneak_sprint_action", 4)
-            
+        self.children = children    # Stopgap measure to avoid infinite loop
         return children
 
         
@@ -52,7 +52,7 @@ class Node:
         """
         # if simulator.is_terminal():
         #     return None
-        print("len(self.children) ", len(self.children))
+        print("agent_node.py:find_random_child len(self.children) ", len(self.find_children()))
         return choice(self.children)
         
     # To be done post simulation

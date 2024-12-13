@@ -1,5 +1,8 @@
 import os
 import re
+import torch
+from PIL import Image
+import io
 
 from camel.agents import ChatAgent
 from camel.configs import ChatGPTConfig
@@ -84,13 +87,33 @@ class ValueFunctionAgent():
         The images corresponding to the observation history of the last {len(act_hist)} actions. The LAST IMAGE represents the current state of the player agent in the game.
         """
         return prompt
+    def _tensor_to_image(self, tensor):
+        # tensor = tensor.squeeze(0)
+        # tensor = tensor.mul(255).add_(0.5).clamp_(0, 255).permute(1, 2, 0).to('cpu', torch.uint8).numpy()
+        # return Image.fromarray(tensor)
+        print("tensor.shape: ", tensor.shape, type(tensor))
+        if isinstance(tensor, torch.Tensor):
+            
+            obs_img = tensor.squeeze().permute(1, 2, 0).numpy()
+        else:
+            obs_img = tensor
+        print("obs_img.shape: ", obs_img.shape)
+        pil_image = Image.fromarray(obs_img.astype("uint8"))
+        byte_io = io.BytesIO()
+        pil_image.save(byte_io, format='PNG')
+        byte_io.seek(0)  # Reset pointer
+        # Load it back into a PIL Image (with format set to PNG)
+        image_with_format = Image.open(byte_io)
+        return image_with_format
+    def _obs_hist_to_images(self, obs_hist):
+        return [self._tensor_to_image(obs) for obs in obs_hist]
 
     def eval(self, obs_hist, act_hist):
         print(f"obs_hist: {obs_hist}")
         print(f"act_hist: {act_hist}")
         print(self._gen_user_eval_prompt(act_hist))
         msg = BaseMessage.make_user_message(
-            role_name= "User", content = self._gen_user_eval_prompt(act_hist), image_list=obs_hist
+            role_name= "User", content = self._gen_user_eval_prompt(act_hist), image_list=self._obs_hist_to_images(obs_hist)
         )
 
         response = self._agent.step(msg)
