@@ -25,7 +25,7 @@ class Node:
             for child in children:
                 child_action = {**child.state['action']} ## copy dict to generate new actions
                 child_action[action_key] = str(i) ## Format for ActionInterface input dict values
-                new_children.append(Node(state={'observation': '', 'action': child_action}))
+                new_children.append(Node(state={'observation': '', 'action': child_action}, parent = self))
        return new_children
         
     def find_children(self):
@@ -35,7 +35,7 @@ class Node:
             "jump_sneak_sprint_action": "0",
         }
         # action_space = actions.ActionSpace(action_dict)
-        children = [Node(state={'observation': '', 'action': action_dict})]       
+        children = [Node(state={'observation': '', 'action': action_dict}, parent = self)]       
 
         children = self.generate_children_action(children, "forward_backward_action", 3)
         children = self.generate_children_action(children, "move_left_right_action", 3)

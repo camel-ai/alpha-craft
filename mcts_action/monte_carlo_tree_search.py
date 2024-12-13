@@ -85,7 +85,7 @@ class MCTS:
         Returns the reward for a random simulation (to completion) of `node`.
         Simulations are terminated early if `max_depth` is reached.
         """
-        history = {'obs_hist': [node.state['observation']], 'act_hist': [node.state['action']]}
+        history = {'obs_hist': [node.parent.state['observation'] if node.parent is not None else node.state['observation']], 'act_hist': [node.state['action']]}
         while True:
             if self.max_depth is not None and depth >= self.max_depth:
                 reward = self.vf_agent.eval(**history)
