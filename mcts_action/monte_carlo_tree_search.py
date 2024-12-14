@@ -43,7 +43,7 @@ class MCTS:
         path = self._select(node)
         leaf = path[-1]
         self._expand(leaf)
-        reward = self._simulate(leaf, depth=0)
+        reward = self._simulate(path, depth=0)
         self._backpropagate(path, reward)
 
     def _select(self, node):
@@ -80,12 +80,25 @@ class MCTS:
             children = set(list(children)[: self.max_expansion])  # Limit expansions
         self.children[node] = children
 
-    def _simulate(self, node, depth=0):
+    def _simulate(self, path, depth=0):
         """
         Returns the reward for a random simulation (to completion) of `node`.
         Simulations are terminated early if `max_depth` is reached.
         """
-        history = {'obs_hist': [node.parent.state['observation'] if node.parent is not None else node.state['observation']], 'act_hist': [node.state['action']]}
+        node = path[-1]
+
+        # Fill in history
+        for idx in range(len(path)):
+            if idx == len(path) - 1:
+                break 
+            else:
+                curr_node, next_node = path[idx], path[idx + 1] 
+                if isinstance(next_node['observation'], str):
+                    new_obs_img = self.world_model.step_single_action(curr_node.state['observation'], actions.ActionInterface(next_node.state['action']).to_oasis_format())
+                    new_obs = torch.tensor(new_obs_img).float().permute(2, 0, 1).unsqueeze(0)
+                    next_node.update_state({'observation': new_obs, 'action': next_node.state['action']})
+
+        history = {'obs_hist': [node.state['observation']], 'act_hist': [node.state['action']]}
         while True:
             if self.max_depth is not None and depth >= self.max_depth:
                 reward = self.vf_agent.eval(**history)
