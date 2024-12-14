@@ -93,7 +93,7 @@ class MCTS:
                 break 
             else:
                 curr_node, next_node = path[idx], path[idx + 1] 
-                if isinstance(next_node['observation'], str):
+                if isinstance(next_node.state['observation'], str):
                     new_obs_img = self.world_model.step_single_action(curr_node.state['observation'], actions.ActionInterface(next_node.state['action']).to_oasis_format())
                     new_obs = torch.tensor(new_obs_img).float().permute(2, 0, 1).unsqueeze(0)
                     next_node.update_state({'observation': new_obs, 'action': next_node.state['action']})
