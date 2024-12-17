@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from collections import defaultdict
 import math
-import actions
+import agent.actions as actions
 import torch
 
 class MCTS:

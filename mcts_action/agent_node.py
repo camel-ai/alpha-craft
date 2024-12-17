@@ -1,6 +1,6 @@
 import numpy as np
 from random import choice
-import actions
+import agent.actions as actions
 # import copy
 
 class Node:
